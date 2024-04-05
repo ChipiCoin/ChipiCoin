@@ -11,6 +11,9 @@ const smallGiversMaxVolume = 138000000
 const mediumGiversMaxVolume = 69000000
 const largeGiversMaxVolume = 34500000
 
+const totalDiff = BigInt('115792089237277217110272752943501742914102634520085823245724998868298727686144')
+const hashrate3080 = BigInt('2000000000')
+
 
 const givers = {
     "largeGivers": [
@@ -78,10 +81,39 @@ async function getWalletBalance(address) {
     return parseInt(balanceHex, 16); // Convert hex to decimal
 }
 
-async function createProgressBar(giver, balance, percentage, name, maxVolume) {
+async function getGiverComplexity(address) {
+    const response = await fetch('https://mainnet.tonhubapi.com/runGetMethod', {
+        method: 'POST',
+        body: JSON.stringify({
+            address,
+            method: 'get_pow_params',
+            stack: []
+        })
+    });
+    const data = await response.json();
+    const balanceHex = data.result.stack[1][1];
+    const hashes = totalDiff / BigInt(parseInt(balanceHex, 16)); 
+    const seconds3080 = hashes / hashrate3080
+    return {"seconds":seconds3080,"hashes":hashes}
+}
+
+function formatN(n) {
+    const unitList = ['y', 'z', 'a', 'f', 'p', 'n', 'u', 'm', '', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'];
+    const zeroIndex = 8;
+    const nn = n.toExponential(2).split(/e/);
+    let u = Math.floor(+nn[1] / 3) + zeroIndex;
+    if (u > unitList.length - 1) {
+        u = unitList.length - 1;
+    } else
+        if (u < 0) {
+            u = 0;
+        }
+    return nn[0] * Math.pow(10, +nn[1] - (u - zeroIndex) * 3) + unitList[u];
+}
+
+async function createProgressBar(giver, balance, percentage, name, maxVolume,complexity,hashes) {
     const groupElement = document.createElement('div');
     groupElement.classList.add('wallet-group');
-
     const link = document.createElement('a');
     link.href = 'https://tonviewer.com/' + giver.mainAddress;
     link.classList.add('regular-text');
@@ -89,7 +121,7 @@ async function createProgressBar(giver, balance, percentage, name, maxVolume) {
     link.target = '_blank';
 
     var text = document.createElement('p');
-    text.innerHTML = `${name}: ${balance.toLocaleString('en-US')}/${maxVolume.toLocaleString('en-US')} CHAPA<br>Mining progress: ${(100-percentage).toFixed(2)}%`;
+    text.innerHTML = `${name}: ${balance.toLocaleString('en-US')}/${maxVolume.toLocaleString('en-US')} CHAPA<br>Mining progress: ${(100-percentage).toFixed(2)}% Hashes: ${formatN(Number(hashes))} Seconds on 3080: ${complexity}`;
 
     link.appendChild(text)
     groupElement.appendChild(link)
@@ -115,6 +147,7 @@ async function createSeparator() {
     walletGroupsContainer.appendChild(div)
 }
 
+
 // Function to create and display wallet groups
 async function displayWalletGroups() {
     var summa= 0;
@@ -126,8 +159,11 @@ async function displayWalletGroups() {
         const giver = givers.largeGivers[i]
         const balance = await getWalletBalance(giver.jettonAddress) / 1000000000;
         const percentage = ((balance) / largeGiversMaxVolume) * 100;
-        
-        createProgressBar(giver, balance, percentage, "Large Giver #" + (i+1).toString(), largeGiversMaxVolume)
+        const result = await getGiverComplexity(giver.mainAddress);
+        const complexity = result.seconds;
+        const hashes = result.hashes;
+
+        createProgressBar(giver, balance, percentage, "Large Giver #" + (i+1).toString(), largeGiversMaxVolume,complexity,hashes)
 
         summa += largeGiversMaxVolume;
         minedSumm+=balance;
@@ -138,8 +174,11 @@ async function displayWalletGroups() {
         const giver = givers.medium_givers[i]
         const balance = await getWalletBalance(giver.jettonAddress) / 1000000000;
         const percentage = ((balance) / mediumGiversMaxVolume) * 100;
-        
-        createProgressBar(giver, balance, percentage, "Medium Giver #" + (i+1).toString(), mediumGiversMaxVolume)
+        const result = await getGiverComplexity(giver.mainAddress);
+        const complexity = result.seconds;
+        const hashes = result.hashes;
+
+        createProgressBar(giver, balance, percentage, "Medium Giver #" + (i+1).toString(), mediumGiversMaxVolume,complexity,hashes)
 
         summa += mediumGiversMaxVolume;
         minedSumm+=balance;
@@ -149,8 +188,11 @@ async function displayWalletGroups() {
         const giver = givers.small_givers[i]
         const balance = await getWalletBalance(giver.jettonAddress) / 1000000000;
         const percentage = ((balance) / smallGiversMaxVolume) * 100;
-        
-        createProgressBar(giver, balance, percentage, "Small Giver #" + (i+1).toString(), smallGiversMaxVolume)
+        const result = await getGiverComplexity(giver.mainAddress);
+        const complexity = result.seconds;
+        const hashes = result.hashes;
+
+        createProgressBar(giver, balance, percentage, "Small Giver #" + (i+1).toString(), smallGiversMaxVolume,complexity,hashes)
 
         summa += smallGiversMaxVolume;
         minedSumm+=balance;
@@ -160,8 +202,11 @@ async function displayWalletGroups() {
         const giver = givers.extra_small_givers[i]
         const balance = await getWalletBalance(giver.jettonAddress) / 1000000000;
         const percentage = ((balance) / extraSmallGiversMaxVolume) * 100;
-        
-        createProgressBar(giver, balance, percentage, "Extra Small Giver #" + (i+1).toString(), extraSmallGiversMaxVolume)
+        const result = await getGiverComplexity(giver.mainAddress);
+        const complexity = result.seconds;
+        const hashes = result.hashes;
+
+        createProgressBar(giver, balance, percentage, "Extra Small Giver #" + (i+1).toString(), extraSmallGiversMaxVolume,complexity,hashes)
 
         summa += extraSmallGiversMaxVolume;
         minedSumm+=balance;
