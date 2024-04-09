@@ -111,7 +111,7 @@ function formatN(n) {
     return nn[0] * Math.pow(10, +nn[1] - (u - zeroIndex) * 3) + unitList[u];
 }
 
-async function createProgressBar(giver, balance, percentage, name, maxVolume,complexity,hashes) {
+async function createProgressBar(giver,name) {
     const groupElement = document.createElement('div');
     groupElement.classList.add('wallet-group');
     const link = document.createElement('a');
@@ -121,8 +121,8 @@ async function createProgressBar(giver, balance, percentage, name, maxVolume,com
     link.target = '_blank';
 
     var text = document.createElement('p');
-    text.innerHTML = `${name}: ${balance.toLocaleString('en-US')}/${maxVolume.toLocaleString('en-US')} CHAPA<br>Mining progress: ${(100-percentage).toFixed(2)}% Hashes: ${formatN(Number(hashes))} Seconds on 3080: ${complexity}`;
-
+    text.innerHTML = `${name}: WAITING DATA`;
+    text.id = `text-${giver.mainAddress}%`;
     link.appendChild(text)
     groupElement.appendChild(link)
         
@@ -130,13 +130,23 @@ async function createProgressBar(giver, balance, percentage, name, maxVolume,com
     progressBar.classList.add('progress-bar');
 
     const progressBarFill = document.createElement('div');
+    progressBarFill.id =  `progres-bar-${giver.mainAddress}%`;
     progressBarFill.classList.add('progress-bar-fill');
-    progressBarFill.style.width = `${percentage}%`;
+    progressBarFill.style.width = `${0}%`;
     progressBar.appendChild(progressBarFill);
 
     groupElement.appendChild(progressBar);
 
     walletGroupsContainer.appendChild(groupElement);
+}
+
+async function fillProgressBar(giver, balance, percentage, name, maxVolume,complexity,hashes) {
+    
+    const text = document.getElementById(`text-${giver.mainAddress}%`);
+    const progressBarFill = document.getElementById(`progres-bar-${giver.mainAddress}%`);
+    text.innerHTML = `${name}: ${balance.toLocaleString('en-US')}/${maxVolume.toLocaleString('en-US')} CHAPA<br>Mining progress: ${(100-percentage).toFixed(2)}% Hashes: ${formatN(Number(hashes))} Seconds on 3080: ${complexity}`;
+    progressBarFill.style.width = `${percentage}%`;
+
 }
 
 async function createSeparator() {
@@ -149,27 +159,23 @@ async function createSeparator() {
 
 
 // Function to create and display wallet groups
+async function createWalletGroups() {
+    createSeparator()
+    
+    for (let i = 0; i < givers.medium_givers.length; i++) {createProgressBar(givers.medium_givers[i],"Medium Giver #"+(i+1).toString())}
+    for (let i = 0; i < givers.small_givers.length; i++) {createProgressBar(givers.small_givers[i],"Small Giver #"+ (i+1).toString())}
+    for (let i = 0; i < givers.extra_small_givers.length; i++) {createProgressBar(givers.extra_small_givers[i],"Extra Small Giver #"+ (i+1).toString())}
+    for (let i = 0; i < givers.largeGivers.length; i++) {createProgressBar(givers.largeGivers[i],"Large Giver #"+ (i+1).toString())}
+}
+
 async function displayWalletGroups() {
     var summa= 0;
     var minedSumm = 0;
 
-    createSeparator()
 
-    for (let i = 0; i < givers.largeGivers.length; i++) {
-        const giver = givers.largeGivers[i]
-        const balance = await getWalletBalance(giver.jettonAddress) / 1000000000;
-        const percentage = ((balance) / largeGiversMaxVolume) * 100;
-        const result = await getGiverComplexity(giver.mainAddress);
-        const complexity = result.seconds;
-        const hashes = result.hashes;
 
-        createProgressBar(giver, balance, percentage, "Large Giver #" + (i+1).toString(), largeGiversMaxVolume,complexity,hashes)
 
-        summa += largeGiversMaxVolume;
-        minedSumm+=balance;
-    }
 
-    createSeparator()
     for (let i = 0; i < givers.medium_givers.length; i++) {
         const giver = givers.medium_givers[i]
         const balance = await getWalletBalance(giver.jettonAddress) / 1000000000;
@@ -178,12 +184,11 @@ async function displayWalletGroups() {
         const complexity = result.seconds;
         const hashes = result.hashes;
 
-        createProgressBar(giver, balance, percentage, "Medium Giver #" + (i+1).toString(), mediumGiversMaxVolume,complexity,hashes)
+        fillProgressBar(giver, balance, percentage, "Medium Giver #" + (i+1).toString(), mediumGiversMaxVolume,complexity,hashes)
 
         summa += mediumGiversMaxVolume;
         minedSumm+=balance;
     }
-    createSeparator()
     for (let i = 0; i < givers.small_givers.length; i++) {
         const giver = givers.small_givers[i]
         const balance = await getWalletBalance(giver.jettonAddress) / 1000000000;
@@ -192,12 +197,11 @@ async function displayWalletGroups() {
         const complexity = result.seconds;
         const hashes = result.hashes;
 
-        createProgressBar(giver, balance, percentage, "Small Giver #" + (i+1).toString(), smallGiversMaxVolume,complexity,hashes)
+        fillProgressBar(giver, balance, percentage, "Small Giver #" + (i+1).toString(), smallGiversMaxVolume,complexity,hashes)
 
         summa += smallGiversMaxVolume;
         minedSumm+=balance;
     }
-    createSeparator()
     for (let i = 0; i < givers.extra_small_givers.length; i++) {
         const giver = givers.extra_small_givers[i]
         const balance = await getWalletBalance(giver.jettonAddress) / 1000000000;
@@ -206,9 +210,22 @@ async function displayWalletGroups() {
         const complexity = result.seconds;
         const hashes = result.hashes;
 
-        createProgressBar(giver, balance, percentage, "Extra Small Giver #" + (i+1).toString(), extraSmallGiversMaxVolume,complexity,hashes)
+        fillProgressBar(giver, balance, percentage, "Extra Small Giver #" + (i+1).toString(), extraSmallGiversMaxVolume,complexity,hashes)
 
         summa += extraSmallGiversMaxVolume;
+        minedSumm+=balance;
+    }
+    for (let i = 0; i < givers.largeGivers.length; i++) {
+        const giver = givers.largeGivers[i]
+        const balance = await getWalletBalance(giver.jettonAddress) / 1000000000;
+        const percentage = ((balance) / largeGiversMaxVolume) * 100;
+        const result = await getGiverComplexity(giver.mainAddress);
+        const complexity = result.seconds;
+        const hashes = result.hashes;
+
+        fillProgressBar(giver, balance, percentage, "Large Giver #" + (i+1).toString(), largeGiversMaxVolume,complexity,hashes)
+
+        summa += largeGiversMaxVolume;
         minedSumm+=balance;
     }
     sumarryBar.style.width = `${((minedSumm/summa)*100)}%`;
@@ -231,6 +248,7 @@ if (darkThemeMq.matches) {
   // Theme set to light.
 }
 
+createWalletGroups();
 // Initial data fetching and display
 displayWalletGroups();
 
