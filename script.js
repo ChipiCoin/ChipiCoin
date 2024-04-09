@@ -185,6 +185,7 @@ async function displayWalletGroups() {
         const hashes = result.hashes;
 
         fillProgressBar(giver, balance, percentage, "Medium Giver #" + (i+1).toString(), mediumGiversMaxVolume,complexity,hashes)
+        await new Promise(r => setTimeout(r, 1000));
 
         summa += mediumGiversMaxVolume;
         minedSumm+=balance;
@@ -196,8 +197,9 @@ async function displayWalletGroups() {
         const result = await getGiverComplexity(giver.mainAddress);
         const complexity = result.seconds;
         const hashes = result.hashes;
-
+    
         fillProgressBar(giver, balance, percentage, "Small Giver #" + (i+1).toString(), smallGiversMaxVolume,complexity,hashes)
+        await new Promise(r => setTimeout(r, 1000));
 
         summa += smallGiversMaxVolume;
         minedSumm+=balance;
@@ -211,6 +213,7 @@ async function displayWalletGroups() {
         const hashes = result.hashes;
 
         fillProgressBar(giver, balance, percentage, "Extra Small Giver #" + (i+1).toString(), extraSmallGiversMaxVolume,complexity,hashes)
+        await new Promise(r => setTimeout(r, 1000));
 
         summa += extraSmallGiversMaxVolume;
         minedSumm+=balance;
@@ -224,6 +227,7 @@ async function displayWalletGroups() {
         const hashes = result.hashes;
 
         fillProgressBar(giver, balance, percentage, "Large Giver #" + (i+1).toString(), largeGiversMaxVolume,complexity,hashes)
+        await new Promise(r => setTimeout(r, 1000));
 
         summa += largeGiversMaxVolume;
         minedSumm+=balance;
