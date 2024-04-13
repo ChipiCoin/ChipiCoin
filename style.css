@@ -25,6 +25,10 @@
     --checkbox-shadow: #c1c1c1;
 }
 
+.dark-theme #github-link {
+    filter: saturate(0%) invert(100%);
+}
+
 body {
     background-color: var(--background-color);
     font-family: sans-serif;
@@ -44,10 +48,14 @@ body {
     justify-content: center;
 }
 
+#github-link {
+    scale: 75%
+}
+
 #wallet-groups {
     width: 75%;
     max-width: 1000px;
-    margin-top: 2.5em;
+    margin-top: 1em;
 }
 
 h1 {
@@ -98,6 +106,7 @@ p {
     text-align: center;
     line-height: 1.5em;
     color: var(--description-text-color);
+    margin-bottom: 0.2em;
 }
 
 .wallet-group {

@@ -162,34 +162,16 @@ async function createSeparator() {
 async function createWalletGroups() {
     createSeparator()
     
-    for (let i = 0; i < givers.medium_givers.length; i++) {createProgressBar(givers.medium_givers[i],"Medium Giver #"+(i+1).toString())}
     for (let i = 0; i < givers.small_givers.length; i++) {createProgressBar(givers.small_givers[i],"Small Giver #"+ (i+1).toString())}
     for (let i = 0; i < givers.extra_small_givers.length; i++) {createProgressBar(givers.extra_small_givers[i],"Extra Small Giver #"+ (i+1).toString())}
     for (let i = 0; i < givers.largeGivers.length; i++) {createProgressBar(givers.largeGivers[i],"Large Giver #"+ (i+1).toString())}
+    for (let i = 0; i < givers.medium_givers.length; i++) {createProgressBar(givers.medium_givers[i],"Medium Giver #"+(i+1).toString())}
 }
 
 async function displayWalletGroups() {
     var summa= 0;
     var minedSumm = 0;
 
-
-
-
-
-    for (let i = 0; i < givers.medium_givers.length; i++) {
-        const giver = givers.medium_givers[i]
-        const balance = await getWalletBalance(giver.jettonAddress) / 1000000000;
-        const percentage = ((balance) / mediumGiversMaxVolume) * 100;
-        const result = await getGiverComplexity(giver.mainAddress);
-        const complexity = result.seconds;
-        const hashes = result.hashes;
-
-        fillProgressBar(giver, balance, percentage, "Medium Giver #" + (i+1).toString(), mediumGiversMaxVolume,complexity,hashes)
-        await new Promise(r => setTimeout(r, 1000));
-
-        summa += mediumGiversMaxVolume;
-        minedSumm+=balance;
-    }
     for (let i = 0; i < givers.small_givers.length; i++) {
         const giver = givers.small_givers[i]
         const balance = await getWalletBalance(giver.jettonAddress) / 1000000000;
@@ -232,6 +214,21 @@ async function displayWalletGroups() {
         summa += largeGiversMaxVolume;
         minedSumm+=balance;
     }
+    for (let i = 0; i < givers.medium_givers.length; i++) {
+        const giver = givers.medium_givers[i]
+        const balance = await getWalletBalance(giver.jettonAddress) / 1000000000;
+        const percentage = ((balance) / mediumGiversMaxVolume) * 100;
+        const result = await getGiverComplexity(giver.mainAddress);
+        const complexity = result.seconds;
+        const hashes = result.hashes;
+
+        fillProgressBar(giver, balance, percentage, "Medium Giver #" + (i+1).toString(), mediumGiversMaxVolume,complexity,hashes)
+        await new Promise(r => setTimeout(r, 1000));
+
+        summa += mediumGiversMaxVolume;
+        minedSumm+=balance;
+    }
+
     sumarryBar.style.width = `${((minedSumm/summa)*100)}%`;
     summaryTextC.textContent = `Mining progress: ${(100 - (minedSumm/summa)*100).toFixed(2)}%`;
     summaryText.textContent = `Total Givers Balance: ${minedSumm.toLocaleString('en-US')}/${summa.toLocaleString('en-US')} CHAPA`;
@@ -248,8 +245,6 @@ async function switchTheme(checkbox) {
 const darkThemeMq = window.matchMedia("(prefers-color-scheme: dark)");
 if (darkThemeMq.matches) {
     document.body.classList.add('dark-theme')
-} else {
-  // Theme set to light.
 }
 
 createWalletGroups();
