@@ -183,6 +183,7 @@ p {
     height: 100%;
     background-color: var(--progress-bar-fill-color);
     border-radius: 9px;
+    transition: all 1.5s ease-in-out;
 }
 
 .checkbox-container {
