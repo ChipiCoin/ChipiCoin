@@ -12,7 +12,7 @@ const mediumGiversMaxVolume = 69000000
 const largeGiversMaxVolume = 34500000
 
 const totalDiff = BigInt('115792089237277217110272752943501742914102634520085823245724998868298727686144')
-const hashrate3080 = BigInt('7900000000000');
+const hashrate3080 = BigInt('2000000000');
 
 const givers = {
     "largeGivers": [
