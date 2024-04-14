@@ -5,7 +5,7 @@
 
 :root {
     --background-color: #f3f3f3;
-    --back-gradient: #f3e1c8;
+    --back-gradient: #e0d4c7;
     --header-text-color: #000;
     --description-text-color: #595959;
     --addresses-text-color: #3a3a3a;
@@ -57,7 +57,7 @@ body {
 
 .back-shadow {
     height: calc(600px + 44vh);
-    width: calc(600px + 44vh);
+    width: min(100%, calc(600px + 44vh));
     background-image: radial-gradient(closest-side, var(--back-gradient), var(--background-color));
     position: absolute;
     z-index: -1;
