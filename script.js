@@ -12,8 +12,7 @@ const mediumGiversMaxVolume = 69000000
 const largeGiversMaxVolume = 34500000
 
 const totalDiff = BigInt('115792089237277217110272752943501742914102634520085823245724998868298727686144')
-const hashrate3080 = BigInt('2000000000')
-
+const hashrate3080 = BigInt('7900000000000');
 
 const givers = {
     "largeGivers": [
@@ -116,7 +115,6 @@ async function createProgressBar(giver,name) {
     groupElement.classList.add('wallet-group');
     const link = document.createElement('a');
     link.href = 'https://tonviewer.com/' + giver.mainAddress;
-    link.classList.add('regular-text');
     link.classList.add('address')
     link.target = '_blank';
 
@@ -151,9 +149,9 @@ async function fillProgressBar(giver, balance, percentage, name, maxVolume,compl
 
 async function createSeparator() {
     const div = document.createElement('div')
-    const h2 = document.createElement('h2')
-    h2.innerText = "ᅠ"
-    div.appendChild(h2)
+    const h3 = document.createElement('h3')
+    h3.innerText = "~.~"
+    div.appendChild(h3)
     walletGroupsContainer.appendChild(div)
 }
 
@@ -163,8 +161,11 @@ async function createWalletGroups() {
     createSeparator()
     
     for (let i = 0; i < givers.small_givers.length; i++) {createProgressBar(givers.small_givers[i],"Small Giver #"+ (i+1).toString())}
+    createSeparator()
     for (let i = 0; i < givers.extra_small_givers.length; i++) {createProgressBar(givers.extra_small_givers[i],"Extra Small Giver #"+ (i+1).toString())}
+    createSeparator()
     for (let i = 0; i < givers.largeGivers.length; i++) {createProgressBar(givers.largeGivers[i],"Large Giver #"+ (i+1).toString())}
+    createSeparator()
     for (let i = 0; i < givers.medium_givers.length; i++) {createProgressBar(givers.medium_givers[i],"Medium Giver #"+(i+1).toString())}
 }
 
