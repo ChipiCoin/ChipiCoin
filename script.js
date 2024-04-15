@@ -1,10 +1,8 @@
-const walletGroupsContainer = document.getElementById('wallet-groups');
+const walletGroupsContainer = document.getElementById('wallet-group');
 const sumarryBar = document.getElementById('sumarry-bar');
 const summaryText = document.getElementById('sumarry-text');
 const summaryTextC = document.getElementById('sumarry-text-c');
-var currentTheme = 'light';
 sumarryBar.style.width = `${0}%`;
-// Sample dictionary of givers (replace with your actual data)
 
 const extraSmallGiversMaxVolume = 448500000
 const smallGiversMaxVolume = 138000000
@@ -65,7 +63,7 @@ const givers = {
     ]
 };
 
-// Function to fetch wallet balance (remains the same)
+// Function to fetch wallet balance
 async function getWalletBalance(address) {
     const response = await fetch('https://mainnet.tonhubapi.com/runGetMethod', {
         method: 'POST',
@@ -92,8 +90,7 @@ async function getGiverComplexity(address) {
     const data = await response.json();
     const balanceHex = data.result.stack[1][1];
     const hashes = totalDiff / BigInt(parseInt(balanceHex, 16));
-    const seconds3080 = hashes / hashrate3080
-    return { "seconds": seconds3080, "hashes": hashes }
+    return hashes
 }
 
 function formatN(n) {
@@ -138,17 +135,17 @@ async function createProgressBar(giver, name) {
     walletGroupsContainer.appendChild(groupElement);
 }
 
-async function fillProgressBar(giver, balance, percentage, name, maxVolume, complexity, hashes) {
-
+async function fillProgressBar(giver, balance, percentage, name, maxVolume, hashes) {
     const text = document.getElementById(`text-${giver.mainAddress}%`);
     const progressBarFill = document.getElementById(`progres-bar-${giver.mainAddress}%`);
-    if (complexity + hashes != 0) {
-        text.innerHTML = `${name}: ${balance.toLocaleString('en-US')}/${maxVolume.toLocaleString('en-US')} CHAPA<br>Mining progress: ${(100 - percentage).toFixed(2)}% Hashes: ${formatN(Number(hashes))} Seconds on 3080: ${complexity}`;
+    const baseLabel = `${name}: ${balance.toLocaleString('en-US')}/${maxVolume.toLocaleString('en-US')} CHAPA<br>Mining progress: `
+    if (hashes != 0) {
+        let secondsOn3080 = hashes / hashrate3080
+        text.innerHTML = baseLabel + `${(100 - percentage).toFixed(2)}% Hashes: ${formatN(Number(hashes))} Seconds on 3080: ${secondsOn3080}`;
     } else {
-        text.innerHTML = `${name}: ${balance.toLocaleString('en-US')}/${maxVolume.toLocaleString('en-US')} CHAPA<br>Mining progress: Done.`;
+        text.innerHTML = baseLabel + "Done.";
     }
     progressBarFill.style.width = `${percentage}%`;
-
 }
 
 async function createSeparator() {
@@ -161,9 +158,8 @@ async function createSeparator() {
 
 
 // Function to create and display wallet groups
-async function createWalletGroups() {
+async function spawnProgressBars() {
     createSeparator()
-
     for (let i = 0; i < givers.small_givers.length; i++) { createProgressBar(givers.small_givers[i], "Small Giver #" + (i + 1).toString()) }
     createSeparator()
     for (let i = 0; i < givers.extra_small_givers.length; i++) { createProgressBar(givers.extra_small_givers[i], "Extra Small Giver #" + (i + 1).toString()) }
@@ -173,10 +169,11 @@ async function createWalletGroups() {
     for (let i = 0; i < givers.medium_givers.length; i++) { createProgressBar(givers.medium_givers[i], "Medium Giver #" + (i + 1).toString()) }
 }
 
-async function displayWalletGroups() {
+async function fillProgressBars() {
     var total = 0;
     var totalRemain = 0;
 
+    // Fill small givers bars
     for (let i = 0; i < givers.small_givers.length; i++) {
         const giver = givers.small_givers[i]
 
@@ -186,16 +183,14 @@ async function displayWalletGroups() {
         const percentage = ((balance) / smallGiversMaxVolume) * 100;
 
         await new Promise(r => setTimeout(r, 300));
-        try { var result = await getGiverComplexity(giver.mainAddress); } catch (err) { i--; continue }
+        try { var hashes = await getGiverComplexity(giver.mainAddress); } catch (err) { i--; continue }
 
-        const complexity = result.seconds;
-        const hashes = result.hashes;
-
-        fillProgressBar(giver, balance, percentage, "Small Giver #" + (i + 1).toString(), smallGiversMaxVolume, complexity, hashes)
+        fillProgressBar(giver, balance, percentage, "Small Giver #" + (i + 1).toString(), smallGiversMaxVolume, hashes)
 
         total += smallGiversMaxVolume;
         totalRemain += balance;
     }
+    // Fill extra small givers bars
     for (let i = 0; i < givers.extra_small_givers.length; i++) {
         const giver = givers.extra_small_givers[i]
 
@@ -205,27 +200,26 @@ async function displayWalletGroups() {
         const percentage = ((balance) / extraSmallGiversMaxVolume) * 100;
 
         await new Promise(r => setTimeout(r, 300));
-        try { var result = await getGiverComplexity(giver.mainAddress); } catch (err) { i--; continue }
+        try { var hashes = await getGiverComplexity(giver.mainAddress); } catch (err) { i--; continue }
 
-        const complexity = result.seconds;
-        const hashes = result.hashes;
-
-        fillProgressBar(giver, balance, percentage, "Extra Small Giver #" + (i + 1).toString(), extraSmallGiversMaxVolume, complexity, hashes)
+        fillProgressBar(giver, balance, percentage, "Extra Small Giver #" + (i + 1).toString(), extraSmallGiversMaxVolume, hashes)
 
         total += extraSmallGiversMaxVolume;
         totalRemain += balance;
     }
+    // Fill large givers bars
     for (let i = 0; i < givers.largeGivers.length; i++) {
         const giver = givers.largeGivers[i]
 
-        fillProgressBar(giver, 0, 0, "Large Giver #" + (i + 1).toString(), largeGiversMaxVolume, 0, 0)
+        fillProgressBar(giver, 0, 0, "Large Giver #" + (i + 1).toString(), largeGiversMaxVolume, 0)
 
         total += largeGiversMaxVolume;
     }
+    // Fill medium givers bars
     for (let i = 0; i < givers.medium_givers.length; i++) {
         const giver = givers.medium_givers[i]
 
-        fillProgressBar(giver, 0, 0, "Medium Giver #" + (i + 1).toString(), mediumGiversMaxVolume, 0, 0)
+        fillProgressBar(giver, 0, 0, "Medium Giver #" + (i + 1).toString(), mediumGiversMaxVolume, 0)
 
         total += mediumGiversMaxVolume;
     }
@@ -235,7 +229,7 @@ async function displayWalletGroups() {
     summaryText.textContent = `Total Givers Balance: ${totalRemain.toLocaleString('en-US')}/${total.toLocaleString('en-US')} CHAPA`;
 }
 
-async function switchTheme(checkbox) {
+async function switchTheme() {
     if (document.body.classList.contains('dark-theme')) {
         document.body.classList.remove('dark-theme')
     } else {
@@ -248,7 +242,6 @@ if (darkThemeMq.matches) {
     document.body.classList.add('dark-theme')
 }
 
-createWalletGroups();
+spawnProgressBars();
 // Initial data fetching and display
-displayWalletGroups();
-
+fillProgressBars();
