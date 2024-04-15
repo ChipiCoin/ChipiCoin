@@ -15,8 +15,8 @@ html {
     --addresses-text-color: #3a3a3a;
     --progress-bar-color: #c1c1c1;
     --progress-bar-fill-color: #d7994c;
-    --checkbox-color: #191919;
-    --checkbox-shadow: #383838;
+    --theme-switcher-color: #191919;
+    --theme-switcher-shadow: #383838;
     --separator: #383838;
 }
 
@@ -28,8 +28,8 @@ html {
     --addresses-text-color: #c1c1c1;
     --progress-bar-color: #383838;
     --progress-bar-fill-color: #d7994c;
-    --checkbox-color: #fff;
-    --checkbox-shadow: #c1c1c1;
+    --theme-switcher-color: #fff;
+    --theme-switcher-shadow: #c1c1c1;
     --separator: #383838;
 }
 
@@ -211,22 +211,19 @@ a {
     transition: all 1.5s ease-in-out;
 }
 
-.checkbox-container {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
+.theme-switcher-container {
     position: fixed;
     top: 90%;
     right: 2.5%;
     z-index: 999;
 }
 
-.checkbox {
+.theme-switcher {
     appearance: none;
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background-color: var(--checkbox-color);
+    background-color: var(--theme-switcher-color);
     cursor: pointer;
-    box-shadow: var(--checkbox-shadow) 0px 0px 10px;
+    box-shadow: var(--theme-switcher-shadow) 0px 0px 10px;
 }
