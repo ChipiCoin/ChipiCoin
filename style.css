@@ -91,6 +91,7 @@ p {
 
 a {
     color: var(--description-text-color);
+    text-decoration: none;
 }
 
 #web-content {
