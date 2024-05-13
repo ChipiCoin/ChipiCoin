@@ -91,6 +91,11 @@ p {
 
 a {
     color: var(--description-text-color);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
 }
 
 #web-content {

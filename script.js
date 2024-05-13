@@ -117,7 +117,7 @@ async function createProgressBar(giver, name) {
 
     var text = document.createElement('p');
     text.innerHTML = `${name}: ... <br>Mining progress: ...`;
-    text.id = `text-${giver.mainAddress}%`;
+    text.id = `text-${giver.mainAddress}`;
     link.appendChild(text)
     groupElement.appendChild(link)
 
@@ -125,7 +125,7 @@ async function createProgressBar(giver, name) {
     progressBar.classList.add('progress-bar');
 
     const progressBarFill = document.createElement('div');
-    progressBarFill.id = `progres-bar-${giver.mainAddress}%`;
+    progressBarFill.id = `progress-bar-${giver.mainAddress}`;
     progressBarFill.classList.add('progress-bar-fill');
     progressBarFill.style.width = `${0}%`;
     progressBar.appendChild(progressBarFill);
@@ -136,14 +136,15 @@ async function createProgressBar(giver, name) {
 }
 
 async function fillProgressBar(giver, balance, percentage, name, maxVolume, hashes) {
-    const text = document.getElementById(`text-${giver.mainAddress}%`);
-    const progressBarFill = document.getElementById(`progres-bar-${giver.mainAddress}%`);
+    const text = document.getElementById(`text-${giver.mainAddress}`);
+    const progressBarFill = document.getElementById(`progress-bar-${giver.mainAddress}`);
     const baseLabel = `${name}: ${balance.toLocaleString('en-US')}/${maxVolume.toLocaleString('en-US')} CHAPA<br>Mining progress: `
     if (hashes != 0) {
         let secondsOn3080 = hashes / hashrate3080
         text.innerHTML = baseLabel + `${(100 - percentage).toFixed(2)}% Hashes: ${formatN(Number(hashes))} Seconds on 3080: ${secondsOn3080}`;
     } else {
         text.innerHTML = baseLabel + "Done.";
+        text.style.textDecoration = "line-through"
     }
     progressBarFill.style.width = `${percentage}%`;
 }
@@ -173,6 +174,22 @@ async function fillProgressBars() {
     var total = 0;
     var totalRemain = 0;
 
+    // Fill large givers bars
+    for (let i = 0; i < givers.largeGivers.length; i++) {
+        const giver = givers.largeGivers[i]
+
+        fillProgressBar(giver, 0, 0, "Large Giver #" + (i + 1).toString(), largeGiversMaxVolume, 0)
+
+        total += largeGiversMaxVolume;
+    }
+    // Fill medium givers bars
+    for (let i = 0; i < givers.medium_givers.length; i++) {
+        const giver = givers.medium_givers[i]
+
+        fillProgressBar(giver, 0, 0, "Medium Giver #" + (i + 1).toString(), mediumGiversMaxVolume, 0)
+
+        total += mediumGiversMaxVolume;
+    }
     // Fill small givers bars
     for (let i = 0; i < givers.small_givers.length; i++) {
         const giver = givers.small_givers[i]
@@ -206,22 +223,6 @@ async function fillProgressBars() {
 
         total += extraSmallGiversMaxVolume;
         totalRemain += balance;
-    }
-    // Fill large givers bars
-    for (let i = 0; i < givers.largeGivers.length; i++) {
-        const giver = givers.largeGivers[i]
-
-        fillProgressBar(giver, 0, 0, "Large Giver #" + (i + 1).toString(), largeGiversMaxVolume, 0)
-
-        total += largeGiversMaxVolume;
-    }
-    // Fill medium givers bars
-    for (let i = 0; i < givers.medium_givers.length; i++) {
-        const giver = givers.medium_givers[i]
-
-        fillProgressBar(giver, 0, 0, "Medium Giver #" + (i + 1).toString(), mediumGiversMaxVolume, 0)
-
-        total += mediumGiversMaxVolume;
     }
 
     sumarryBar.style.width = `${((totalRemain / total) * 100)}%`;
